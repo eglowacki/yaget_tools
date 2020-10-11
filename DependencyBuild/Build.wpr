@@ -1,0 +1,12 @@
+#!wing
+#!version=7.0
+##################################################################
+# Wing project file                                              #
+##################################################################
+[project attributes]
+proj.file-list = [loc('build.py'),
+                  loc('Sample.build')]
+proj.file-type = 'shared'
+proj.launch-config = {loc('build.py'): ('project',
+        (u'-root=c:\\Development\\yaget --configuration=Debug --destination=.\\ --metafile=.\\Sample.build',
+         ''))}

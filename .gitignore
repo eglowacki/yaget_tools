@@ -1,0 +1,8 @@
+
+*.wpu
+
+SQLiteStudio/
+
+*.exe
+
+*.dll
