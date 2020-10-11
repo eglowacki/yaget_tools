@@ -34,7 +34,7 @@ def UpdateDeploymentFiles(files, root, destination, silentPrint, test):
 
         elif not sourceExist:
             if not silentPrint:
-                print("[{}] ERR missing: '{}' does not exist.".format(deployTag, ConvertPath(sourceFile)))
+                print("[{}] ERROR missing: '{}' does not exist.".format(deployTag, ConvertPath(sourceFile)))
 
 # Load actuall meta configuration file (.deployment)
 # from disk and return json object or None
@@ -96,8 +96,9 @@ def main():
     args= parser.parse_args()
 
     if not path.isfile(args.meta):
-        print("[{}] ERR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
-        exit(1)
+        #print("[{}] ERROR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
+        print("[{}] INFO: Meta file '{}' does not exist, no dependency deploymnet will be performed.".format(deployTag, ConvertPath(args.meta)))
+        exit(0)
 
     if args.test:
         deployTag = 'DEPLOY-TEST'
@@ -119,7 +120,7 @@ def main():
         datastore = CombineMetaConfiguration(baseDatastore, datastore)
 
     if not 'Configuration' in datastore:
-        print("[{}] ERR: Metafile: '{}' does not have 'Configuration' block.".format(deployTag, ConvertPath(args.meta)))
+        print("[{}] ERROR: Metafile: '{}' does not have 'Configuration' block.".format(deployTag, ConvertPath(args.meta)))
         exit(1)
 
     confBlock = datastore['Configuration']
