@@ -6,6 +6,9 @@ import shutil
 import json
 import pprint
 import copy
+import subprocess
+
+
 deployTag = 'BUILD'
 # # Actualy copy/move files from root/files to destination/files
 # # unsing time stamp for already existing files at destination
@@ -298,10 +301,13 @@ class ModuleBuilder:
     """Represents module configuration and build rules.
     It is initialized from json blob with defaults"""
 
-    def __init__(self, name, jsonBlock, defaultBlock):
+    def __init__(self, name, dependencyFolder, jsonBlock, defaultBlock, silent):
         self.Name = name
+        self.DependencyFolder =  dependencyFolder
         self.Version = '{}'.format(jsonBlock['version'])
         self.RootFolderName = '{}-{}'.format(name, self.Version)
+        self.PrintProgress = silent == False
+        self.SupressTests = False
 
         cmakeDefaults = {}
         if 'cmake' in defaultBlock:
@@ -313,13 +319,15 @@ class ModuleBuilder:
             self.BuildFolderName = path.join(self.RootFolderName, cmakeDefaults['build_folder'])
         else:
             self.BuildFolderName = self.RootFolderName
+            
+        self.BuildFolderName =  path.join(self.DependencyFolder, self.BuildFolderName)
 
-        self.BuildOptions = ''
+        self.BuildOptions = []
         if 'options' in cmakeDefaults:
             self.BuildOptions = cmakeDefaults['options']
 
         if 'cmake' in jsonBlock and 'options' in jsonBlock['cmake']:
-            self.BuildOptions += ' ' + jsonBlock['cmake']['options']
+            self.BuildOptions.extend(jsonBlock['cmake']['options'])
 
         self.BuildConfigurations = []
         if 'configurations' in defaultBlock:
@@ -328,7 +336,9 @@ class ModuleBuilder:
         if 'configurations' in jsonBlock:
             self.BuildConfigurations.extend(jsonBlock['configurations'])
 
-        self.CmakeCommand = 'cmake ../ -G"Visual Studio 16 2019" -A x64 ' + self.BuildOptions
+        self.CmakeCommand = 'cmake'
+        self.CmakeOptions = [ '../', '-GVisual Studio 16 2019', '-Ax64', '-Wno-dev' ]
+        self.CmakeOptions.extend(self.BuildOptions)
 
         self.BuildCommands = []
         for configuration in self.BuildConfigurations:
@@ -341,52 +351,104 @@ class ModuleBuilder:
         if 'tests' in jsonBlock:
             self.TestCommands.extend(jsonBlock['tests'])
 
+        if 'options' in jsonBlock and 'suppress_tests' in jsonBlock['options']:
+            self.SupressTests = True
+
     def __repr__(self):
-        #return '<class \'%s\' instance at %s>' % (self.__class__.__name__, id(self))
-        return '<class \'{}\' instance at {}>\nName: {}\nVersion: {}\nRoot Folder: {}\nBuild Folder: {}\nBuild options: {}\nBuild Configurations: {}\nGenerator: {}'.format(
-            self.__class__.__name__, id(self), self.Name, self.Version, self.RootFolderName, self.BuildFolderName, self.BuildOptions, self.BuildConfigurations, self.CmakeCommand)
+        return '<class \'{}\' instance at {}>\nName: {}\nVersion: {}\nRoot Folder: {}\nBuild Folder: {}\nBuild options: {}\nBuild Configurations: {}\nGenerator: {}{}'.format(
+            self.__class__.__name__, id(self), self.Name, self.Version, self.RootFolderName, self.BuildFolderName, self.BuildOptions, self.BuildConfigurations, self.CmakeCommand, self.CmakeOptions)
 
+    def Configure(self, clean):
+        '''Configure build environment and generate platform specific project'''
+        isFolder = os.path.isdir(self.BuildFolderName)
 
+        if clean:
+            if isFolder:
+                try:
+                    shutil.rmtree(self.BuildFolderName)
+                    isFolder = False;
+                except OSError as e:
+                    print("Error: %s : %s" % (self.BuildFolderName, e.strerror))
+                    return False
+        
+        if  not isFolder:
+            os.makedirs(self.BuildFolderName)
+               
+        configureCommand = [self.CmakeCommand]
+        configureCommand.extend(self.CmakeOptions)
+        self.ExecuteCommand(configureCommand, self.BuildFolderName, self.PrintProgress)
+        
+        return True
+    
+    def Build(self):
+        '''Build dependency module based on configuration run'''
+        if not os.path.isdir(self.BuildFolderName):
+            print("Error: Build folder '{}' does not exist".format(self.BuildFolderName))
+            return False
+        
+        results = 0
+        for command in self.BuildCommands:
+            results += self.ExecuteCommand(command, self.BuildFolderName, self.PrintProgress);
+            
+        return results == len(self.BuildCommands)
+        
+    def Tests(self):
+        '''Run all unit tests'''
+        if  self.SupressTests:
+            print("Warning: unit tests for {} are suppressed.".format(self.Name))
+            return True;
+        
+        results = 0
+        for test in self.TestCommands:
+            fullPath = path.join(self.BuildFolderName, test)
+            if os.path.isfile(fullPath):
+                results += self.ExecuteCommand(fullPath, self.BuildFolderName, self.PrintProgress)
+            else:
+                print("Error: Test executable '{}' does not exist".format(fullPath))
+                
+        return results == len(self.TestCommands)
+        
+    def ExecuteCommand(self, command, workingDir, printProgress):
+        '''Execute command as process, pipe output to stdout (if not silent)'''
+        process = subprocess.Popen(command, shell=True, cwd = workingDir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        while True:
+            result = process.stdout.readline()
+            line = result.decode('utf-8')
+            if  line == '\r\n':
+                continue
+                
+            line = line.rstrip("\n")
+            line = line.rstrip("\r")
+            if printProgress:
+                print(line)
+                
+            if result.decode('utf-8') == '' and process.poll() != None:
+                if process.returncode != 0:
+                    print("Error executing command: '{}'.".format(command))
+                    return False
+                
+                return True
+        
 
-    #print('---------------------------------------------------------------------')
-    #print('Module Name: {}'.format(name))
-    #print('Module Version: {}'.format(version))
-    #print('Module folder name: {}'.format(moduleFolderName))
-    #print('Module build folder name: {}'.format(buildFolderName))
-    #print('Module build options: {}'.format(buildOptions))
-    #print('Module build configurations: {}'.format(buildConfigurations))
-    #print('       Generator: {}'.format(generator))
-    #for configuration in buildConfigurations:
-        #buildCommand = 'cmake --build . --config {}'.format(configuration)
-
-        #print('       Build Command: {}'.format(buildCommand))
-
-    #for test in tests:
-        #testCommand = test
-
-        #print('       Test Command: {}'.format(testCommand))
-
-
-
-def ParseBuildBlock():
-    pass
-
-
-
+# "C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python37_64\python.exe" build.py --root=c:\Development\yaget\Dependencies --metafile=.\Sample.build
+# optional
+#   --silent
+#   --clean
+#   --filter=<reg_expresion>
 
 def main():
 
     global deployTag
 
     parser = argparse.ArgumentParser(description='''Automation of git, build and deploy of yaget dependency libraries. Yaget (c)2020.
-                                                  # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --destination=$(YAGET_RUN_FOLDER) --metafile=$(ProjectDir)$(TargetName).deployment]
+                                                  # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --metafile=$(ProjectDir)$(TargetName).deployment]
                                                   # expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
     parser.add_argument('-r', '--root', dest='root', required=True, help='Root used in prefix of files to copy')
-    parser.add_argument('-c', '--configuration', dest='configuration', required=True, help='Build configuration to use as a source of dependencies')
-    parser.add_argument('-d', '--destination', dest='destination', required=True, help='Where to copy the dependent files')
     parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations and files to copy from root/file_to_copy to destination/file_to_copy')
     parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
-    parser.add_argument('-t', '--test', action='store_true', help='Run through all steps but not actully update files, useful for diagnostics, checks')
+    parser.add_argument('-t', '--test_skip', action='store_true', help='Skip all tests')
+    parser.add_argument('-f', '--filter', dest='filter', help='Reg expresion for which dependencies to run build(s)')
+    parser.add_argument('-c', '--clean', dest='clean', action='store_true', help='Fully rebuild module')
 
     args = parser.parse_args()
 
@@ -394,10 +456,9 @@ def main():
         print("[{}] ERR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
         exit(1)
 
-    if args.test:
-        deployTag = 'BUILD-TEST'
-
-    silentPrint = args.silent
+    if not path.isdir(args.root):
+        print("[{}] ERR: root: '{}' is not a valid directory.".format(deployTag, ConvertPath(args.root)))
+        exit(1)
 
     datastore = LoadMetaFile(args.meta)
     if not datastore:
@@ -431,87 +492,42 @@ def main():
     if 'Evaluations' in datastore:
         evaluations = datastore['Evaluations']
 
+    dependenciesResult = True
     generators = []
 
     moduleNames = modules.keys()
     for name in moduleNames:
-        jsonBlock = modules[name]
+        if args.filter == None or name.find(args.filter) != -1:
+            jsonBlock = modules[name]
+            generator = ModuleBuilder(name, args.root, jsonBlock, defaultBlock, args.silent)
+            generators.append(generator)
+            
+    print('Yaget Build Dependency Tool (c)2020.')
+    print('Running configurations...')
+    configurePass = []
+    for generator in generators:
+        if generator.Configure(args.clean):
+            configurePass.append(generator)
+            print('    Added: {} versions: {}.'.format(generator.Name, generator.Version))
 
-        generator = ModuleBuilder(name, jsonBlock, defaultBlock)
+    print('\nRunning builds...')
+    for generator in configurePass:
+        result = generator.Build()
+        if  not result:
+            dependenciesResult = False
+        print('    Build {} secessfull: {}.'.format(generator.Name, result))
 
-        generators.append(generator)
+    if args.test_skip:
+        print('\nTests skipped.')
+    else:
+        print('\nRunning tests...')
+        for generator in configurePass:
+            result = generator.Tests()
+            if  not result:
+                dependenciesResult = False
+            print('    Tests {} secessfull: {}.'.format(generator.Name, result))
 
-        #version = settings['version']
-        #moduleFolderName = name + '-' + '{}'.format(version)
-
-        #if 'cmake' in settings and 'build_folder' in settings['cmake']:
-            #buildFolderName = path.join(moduleFolderName, settings['cmake']['build_folder'])
-        #elif 'build_folder' in cmakeDefaults:
-            #buildFolderName = path.join(moduleFolderName, cmakeDefaults['build_folder'])
-        #else:
-            #buildFolderName = moduleFolderName
-
-        #buildOptions = ''
-        #if 'options' in cmakeDefaults:
-            #buildOptions = cmakeDefaults['options']
-
-        #if 'cmake' in settings and 'options' in settings['cmake']:
-            #buildOptions += ' ' + settings['cmake']['options']
-
-        #buildConfigurations = copy.deepcopy(configurationsDefault)
-        #if 'configurations' in settings:
-            #buildConfigurations.extend(settings['configurations'])
-
-        #tests = copy.deepcopy(testsDefault)
-        #if 'tests' in settings:
-            #tests.extend(settings['tests'])
-
-        #generator = 'cmake ../ -G"Visual Studio 16 2019" -A x64 ' + buildOptions
-
-        #print('---------------------------------------------------------------------')
-        #print('Module Name: {}'.format(name))
-        #print('Module Version: {}'.format(version))
-        #print('Module folder name: {}'.format(moduleFolderName))
-        #print('Module build folder name: {}'.format(buildFolderName))
-        #print('Module build options: {}'.format(buildOptions))
-        #print('Module build configurations: {}'.format(buildConfigurations))
-        #print('       Generator: {}'.format(generator))
-        #for configuration in buildConfigurations:
-            #buildCommand = 'cmake --build . --config {}'.format(configuration)
-
-            #print('       Build Command: {}'.format(buildCommand))
-
-        #for test in tests:
-            #testCommand = test
-
-            #print('       Test Command: {}'.format(testCommand))
-
-        #z = 0
-        #z
-
-
-
-
-    #----------------------------------------------------------------------------------------------------
-    #---------------------------- assimp -------------------------------------------
-    # Dependencies> git clone https://github.com/assimp/assimp.git assimp-5.0.1
-    # Dependencies> rmdir /S /Q assimp-5.0.1\.git   ; check first for existance if this filter (hidden)
-    # Dependencies> mkdir assimp-5.0.1\builds       ; delete old builds folder if exist
-    # Dependencies> cd assimp5.0.1\builds
-    #
-    # Dependencies/assimp-5.0.1/builds> cmake ../ -G"Visual Studio 16 2019" -A x64 -DASSIMP_BUILD_ZLIB=ON
-    # Dependencies/assimp-5.0.1/builds> cmake --build . --config Debug
-    # Dependencies/assimp-5.0.1/builds> bin\Debug\unit.exe
-    # Dependencies/assimp-5.0.1/builds> cmake --build . --config Release
-    # Dependencies/assimp-5.0.1/builds> bin\Release\unit.exe
-
-
-    #BuildDependency('Defaults', defaults)
-    #BuildDependency('Modules', modules)
-    #BuildDependency('Evaluations', evaluations)
-
-    #print('Finished deployment build.')
-    #silentPrint
+    print('\nFinished dependencies configuration and build. Results: {}.'.format(dependenciesResult))
 
 
 if __name__ == "__main__":

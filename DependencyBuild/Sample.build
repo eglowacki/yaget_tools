@@ -9,10 +9,10 @@
     "Modules": {
         "assimp": {
             "version": "5.0.1",
-            "cmake": { "options": "-DASSIMP_BUILD_ZLIB=ON" },
+            "cmake": { "options": [ "-DASSIMP_BUILD_ZLIB=ON" ] },
             "git": "https://github.com/assimp",
             "tests": [ "bin/Debug/unit.exe", "bin/Release/unit.exe" ],
-            "configurations": [ "Shipping" ]
+            "options": { "suppress_tests": true }
         },
 
         "flatbuffers": {
@@ -53,14 +53,14 @@
     "Evaluations": {
         "reactphysics3d": {
             "version": "0.7.1",
-            "cmake": { "options": "-DRP3D_COMPILE_TESTBED=ON -DRP3D_COMPILE_TESTS=ON -DRP3D_PROFILING_ENABLED=ON -DRP3D_LOGS_ENABLED=ON" },
+            "cmake": { "options": [ "-DRP3D_COMPILE_TESTBED=ON", "-DRP3D_COMPILE_TESTS=ON", "-DRP3D_PROFILING_ENABLED=ON", "-DRP3D_LOGS_ENABLED=ON" ] },
             "git": "https://github.com/DanielChappuis",
             "tests": [ "test/Debug/tests.exe", "test/Release/tests.exe" ]
         },
 
         "PhysX": {
             "version": "4.1",
-            "cmake": { "options": "-DRP3D_COMPILE_TESTBED=ON -DRP3D_COMPILE_TESTS=ON -DRP3D_PROFILING_ENABLED=ON -DRP3D_LOGS_ENABLED=ON" },
+            "cmake": { "options": [ "-DRP3D_COMPILE_TESTBED=ON", "-DRP3D_COMPILE_TESTS=ON", "-DRP3D_PROFILING_ENABLED=ON", "-DRP3D_LOGS_ENABLED=ON" ] },
             "git": "https://github.com/NVIDIAGameWorks",
             "msdev": { "solutions": "PhysXSDK" },
             "build_folder": "compiler/vc16win64"
