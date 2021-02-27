@@ -8,37 +8,7 @@ import pprint
 import copy
 import subprocess
 
-
 deployTag = 'BUILD'
-# # Actualy copy/move files from root/files to destination/files
-# # unsing time stamp for already existing files at destination
-# def UpdateDeploymentFiles(files, root, destination, silentPrint, test):
-
-    # for file in files:
-        # sourceFile = path.join(root, file)
-        # targetFile = path.join(destination, path.basename(sourceFile))
-        # sourceExist = path.isfile(sourceFile)
-        # targetExist = path.isfile(targetFile)
-        # if sourceExist and targetExist:
-            # isSame = filecmp.cmp(sourceFile, targetFile, shallow=True)
-            # if isSame:
-                # if not silentPrint:
-                    # print("[{}] OK  current: '{}' upto date.".format(deployTag, ConvertPath(targetFile)))
-            # else:
-                # if not silentPrint:
-                    # print("[{}] OK  updated: '{}' needs update.".format(deployTag, ConvertPath(targetFile)))
-                # if not test:
-                    # shutil.copy(sourceFile, targetFile, follow_symlinks=True)
-
-        # elif sourceExist and not targetExist:
-            # if not silentPrint:
-                # print("[{}] OK   copied: '{}' to: '{}'.".format(deployTag, ConvertPath(sourceFile), ConvertPath(targetFile)))
-            # if not test:
-                # shutil.copy(sourceFile, targetFile, follow_symlinks=True)
-
-        # elif not sourceExist:
-            # if not silentPrint:
-                # print("[{}] ERR missing: '{}' does not exist.".format(deployTag, ConvertPath(sourceFile)))
 
 # Load actuall meta configuration file (.build)
 # from disk and return json object or None
@@ -64,95 +34,8 @@ def LoadMetaFile(fileName):
     except IOError:
         return None
 
-# def GetMetaFilesFor(datastore, configuration):
-    # if configuration in datastore:
-        # return datastore[configuration]
-
-    # return []
-
-# def CombineMetaConfiguration(baseDatastore, optionalDatastore):
-
-    # if 'Configuration' in optionalDatastore:
-        # for key in optionalDatastore['Configuration']:
-            # files = GetMetaFilesFor(optionalDatastore['Configuration'], key)
-            # baseDatastore['Configuration'][key].extend(files)
-
-    # return baseDatastore
-
 def ConvertPath(path):
     return path.replace(os.path.sep, '/')
-
-
-# def main():
-
-    # global deployTag
-
-    # parser = argparse.ArgumentParser(description='''Update deployment files from it's source folder to destination folder for a build configuration. Yaget (c)2019.
-                                                    # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --destination=$(YAGET_RUN_FOLDER) --metafile=$(ProjectDir)$(TargetName).deployment]
-                                                    # expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
-    # parser.add_argument('-r', '--root', dest='root', required=True, help='Root used in prefix of files to copy')
-    # parser.add_argument('-c', '--configuration', dest='configuration', required=True, help='Build configuration to use as a source of dependencies')
-    # parser.add_argument('-d', '--destination', dest='destination', required=True, help='Where to copy the dependent files')
-    # parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations and files to copy from root/file_to_copy to destination/file_to_copy')
-    # parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
-    # parser.add_argument('-t', '--test', action='store_true', help='Run through all steps but not actully update files, useful for diagnostics, checks')
-
-    # args= parser.parse_args()
-
-    # if not path.isfile(args.meta):
-        # print("[{}] ERR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
-        # exit(1)
-
-    # if args.test:
-        # deployTag = 'DEPLOY-TEST'
-
-    # silentPrint = args.silent
-
-    # datastore = LoadMetaFile(args.meta)
-    # if not datastore:
-        # exit(1)
-
-    # if not silentPrint:
-        # print("[{}] Yaget deployment started for '{}' configuration using metafile: '{}'...".format(deployTag, args.configuration, ConvertPath(args.meta)))
-
-    # if 'Include' in datastore:
-        # includeFile = datastore['Include']
-        # includeSourceFile = path.join(args.root, includeFile)
-        # baseDatastore = LoadMetaFile(includeSourceFile)
-
-        # datastore = CombineMetaConfiguration(baseDatastore, datastore)
-
-    # if not 'Configuration' in datastore:
-        # print("[{}] ERR: Metafile: '{}' does not have 'Configuration' block.".format(deployTag, ConvertPath(args.meta)))
-        # exit(1)
-
-    # confBlock = datastore['Configuration']
-    # filesToDeploy = []
-
-    # # collect all files into one list
-    # filesToDeploy += GetMetaFilesFor(confBlock, 'Common')
-    # filesToDeploy += GetMetaFilesFor(confBlock, args.configuration)
-
-    # # remove any duplicate and transform to valid linux like path
-    # filesToDeploy = list(dict.fromkeys(filesToDeploy))
-    # filesToDeploy = [ConvertPath(a) for a in filesToDeploy]
-
-    # # remove file which starts with -
-    # removes = list((x for x in filesToDeploy if x.startswith('-')))
-    # for rm in removes:
-        # filesToDeploy.remove(rm)
-        # if rm[1:] in filesToDeploy:
-            # if not silentPrint:
-                # print("[{}] OK  removed: '{}' from deployment.".format(deployTag, rm[1:]))
-
-            # filesToDeploy.remove(rm[1:])
-
-    # # finaly update deploy files
-    # UpdateDeploymentFiles(filesToDeploy, args.root, args.destination, silentPrint, args.test)
-
-    # if not silentPrint:
-        # print("[{}] Yaget deployment finished.".format(deployTag))
-
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- assimp -------------------------------------------
@@ -281,10 +164,6 @@ def ConvertPath(path):
 # Dependencies> cd bullet3-2.8.9
 
 
-
-
-
-
 #cmake --build . --target MyExe --config Debug
 
 deployTag = 'MODULE-BUILD'
@@ -319,7 +198,7 @@ class ModuleBuilder:
             self.BuildFolderName = path.join(self.RootFolderName, cmakeDefaults['build_folder'])
         else:
             self.BuildFolderName = self.RootFolderName
-            
+
         self.BuildFolderName =  path.join(self.DependencyFolder, self.BuildFolderName)
 
         self.BuildOptions = []
@@ -370,34 +249,34 @@ class ModuleBuilder:
                 except OSError as e:
                     print("Error: %s : %s" % (self.BuildFolderName, e.strerror))
                     return False
-        
-        if  not isFolder:
+
+        if not isFolder:
             os.makedirs(self.BuildFolderName)
-               
+
         configureCommand = [self.CmakeCommand]
         configureCommand.extend(self.CmakeOptions)
         self.ExecuteCommand(configureCommand, self.BuildFolderName, self.PrintProgress)
-        
+
         return True
-    
+
     def Build(self):
         '''Build dependency module based on configuration run'''
         if not os.path.isdir(self.BuildFolderName):
             print("Error: Build folder '{}' does not exist".format(self.BuildFolderName))
             return False
-        
+
         results = 0
         for command in self.BuildCommands:
             results += self.ExecuteCommand(command, self.BuildFolderName, self.PrintProgress);
-            
+
         return results == len(self.BuildCommands)
-        
+
     def Tests(self):
         '''Run all unit tests'''
         if  self.SupressTests:
             print("Warning: unit tests for {} are suppressed.".format(self.Name))
             return True;
-        
+
         results = 0
         for test in self.TestCommands:
             fullPath = path.join(self.BuildFolderName, test)
@@ -405,9 +284,9 @@ class ModuleBuilder:
                 results += self.ExecuteCommand(fullPath, self.BuildFolderName, self.PrintProgress)
             else:
                 print("Error: Test executable '{}' does not exist".format(fullPath))
-                
+
         return results == len(self.TestCommands)
-        
+
     def ExecuteCommand(self, command, workingDir, printProgress):
         '''Execute command as process, pipe output to stdout (if not silent)'''
         process = subprocess.Popen(command, shell=True, cwd = workingDir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -416,19 +295,19 @@ class ModuleBuilder:
             line = result.decode('utf-8')
             if  line == '\r\n':
                 continue
-                
+
             line = line.rstrip("\n")
             line = line.rstrip("\r")
             if printProgress:
                 print(line)
-                
+
             if result.decode('utf-8') == '' and process.poll() != None:
                 if process.returncode != 0:
                     print("Error executing command: '{}'.".format(command))
                     return False
-                
+
                 return True
-        
+
 
 # "C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python37_64\python.exe" build.py --root=c:\Development\yaget\Dependencies --metafile=.\Sample.build
 # optional
@@ -449,6 +328,7 @@ def main():
     parser.add_argument('-t', '--test_skip', action='store_true', help='Skip all tests')
     parser.add_argument('-f', '--filter', dest='filter', help='Reg expresion for which dependencies to run build(s)')
     parser.add_argument('-c', '--clean', dest='clean', action='store_true', help='Fully rebuild module')
+    parser.add_argument('-d', '--display', dest='display', action='store_true', help='Display (print) what would be congfired, build and test.')
 
     args = parser.parse_args()
 
@@ -501,21 +381,29 @@ def main():
             jsonBlock = modules[name]
             generator = ModuleBuilder(name, args.root, jsonBlock, defaultBlock, args.silent)
             generators.append(generator)
-            
+
     print('Yaget Build Dependency Tool (c)2020.')
-    print('Running configurations...')
+    displayMode = ' In Display Mode' if args.display else ''
+    print('Running configurations{}...'.format(displayMode))
+
+    genreratedProjects = 0
+    compiledProjects = 0
+    testProjects = 0
+
     configurePass = []
     for generator in generators:
         if generator.Configure(args.clean):
             configurePass.append(generator)
-            print('    Added: {} versions: {}.'.format(generator.Name, generator.Version))
+            genreratedProjects += 1
+            print('    Added: {}, version: {}.'.format(generator.Name, generator.Version))
 
     print('\nRunning builds...')
     for generator in configurePass:
         result = generator.Build()
-        if  not result:
+        if not result:
             dependenciesResult = False
-        print('    Build {} secessfull: {}.'.format(generator.Name, result))
+        compiledProjects += result
+        print("    Build '{}' secessfull: {}.".format(generator.Name, result))
 
     if args.test_skip:
         print('\nTests skipped.')
@@ -523,11 +411,13 @@ def main():
         print('\nRunning tests...')
         for generator in configurePass:
             result = generator.Tests()
-            if  not result:
+            if not result:
                 dependenciesResult = False
-            print('    Tests {} secessfull: {}.'.format(generator.Name, result))
+            testProjects += result
+            print("    Tests '{}' secessfull: {}.".format(generator.Name, result))
 
-    print('\nFinished dependencies configuration and build. Results: {}.'.format(dependenciesResult))
+    print("\nConfigured: {}, Builded: {}, Tested: {}. Full Clean Run: {}.".format(genreratedProjects, compiledProjects, testProjects, genreratedProjects == compiledProjects == testProjects))
+    print('Finished dependencies configuration and builds. Result: {}.'.format(dependenciesResult))
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@
         },
 
         "flatbuffers": {
-            "version": "1.11.0",
+            "version": "1.12.0",
             "git": "https://github.com/google",
             "tests": [ "Debug/flattests.exe", "Release/flattests.exe" ]
         },
