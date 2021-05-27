@@ -322,8 +322,8 @@ def main():
     parser = argparse.ArgumentParser(description='''Automation of git, build and deploy of yaget dependency libraries. Yaget (c)2020.
                                                   # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --metafile=$(ProjectDir)$(TargetName).deployment]
                                                   # expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
-    parser.add_argument('-r', '--root', dest='root', required=True, help='Root used in prefix of files to copy')
-    parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations and files to copy from root/file_to_copy to destination/file_to_copy')
+    parser.add_argument('-r', '--root', dest='root', required=True, help='Root used for prefix to module/dependency folder')
+    parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations for how to compile each module/dependency')
     parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
     parser.add_argument('-t', '--test_skip', action='store_true', help='Skip all tests')
     parser.add_argument('-f', '--filter', dest='filter', help='Reg expresion for which dependencies to run build(s)')
