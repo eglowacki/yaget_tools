@@ -35,6 +35,11 @@
             "version": "04.06.2021",
             "git": "https://github.com/microsoft"
         },
+		
+        "DirectX-Headers": {
+            "version": "12",
+            "git": "https://github.com/microsoft"
+        },
 
         "fmt": {
             "version": "6.2.0",
