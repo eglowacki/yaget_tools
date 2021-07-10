@@ -6,3 +6,4 @@ REM optional parameters
 REM 	--silent
 REM 	--clean
 REM 	--filter=<reg_expresion>
+REM 	--display

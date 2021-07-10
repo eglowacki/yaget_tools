@@ -180,13 +180,14 @@ class ModuleBuilder:
     """Represents module configuration and build rules.
     It is initialized from json blob with defaults"""
 
-    def __init__(self, name, dependencyFolder, jsonBlock, defaultBlock, silent):
+    def __init__(self, name, dependencyFolder, jsonBlock, defaultBlock, silent, displayMode):
         self.Name = name
         self.DependencyFolder =  dependencyFolder
         self.Version = '{}'.format(jsonBlock['version'])
         self.RootFolderName = '{}-{}'.format(name, self.Version)
         self.PrintProgress = silent == False
         self.SupressTests = False
+        self.DisplayMode =  displayMode
 
         cmakeDefaults = {}
         if 'cmake' in defaultBlock:
@@ -239,19 +240,23 @@ class ModuleBuilder:
 
     def Configure(self, clean):
         '''Configure build environment and generate platform specific project'''
+
         isFolder = os.path.isdir(self.BuildFolderName)
 
-        if clean:
-            if isFolder:
-                try:
-                    shutil.rmtree(self.BuildFolderName)
-                    isFolder = False;
-                except OSError as e:
-                    print("Error: %s : %s" % (self.BuildFolderName, e.strerror))
-                    return False
+        if not self.DisplayMode:
+            if clean:
+                if isFolder:
+                    try:
+                        shutil.rmtree(self.BuildFolderName)
+                        isFolder = False;
+                    except OSError as e:
+                        print("Error: %s : %s" % (self.BuildFolderName, e.strerror))
+                        return False
 
-        if not isFolder:
-            os.makedirs(self.BuildFolderName)
+            if not isFolder:
+                os.makedirs(self.BuildFolderName)
+        else:
+            print("Project: '{}', configuring builds folder: '{}', exits: '{}'.".format(self.Name, self.BuildFolderName, isFolder))
 
         configureCommand = [self.CmakeCommand]
         configureCommand.extend(self.CmakeOptions)
@@ -261,9 +266,12 @@ class ModuleBuilder:
 
     def Build(self):
         '''Build dependency module based on configuration run'''
-        if not os.path.isdir(self.BuildFolderName):
-            print("Error: Build folder '{}' does not exist".format(self.BuildFolderName))
-            return False
+        if not self.DisplayMode:
+            if not os.path.isdir(self.BuildFolderName):
+                print("Error: Build folder '{}' does not exist".format(self.BuildFolderName))
+                return False
+        else:
+            print("Project '{}' is building configuratians '{}'.".format(self.Name, self.BuildCommands));
 
         results = 0
         for command in self.BuildCommands:
@@ -275,6 +283,10 @@ class ModuleBuilder:
         '''Run all unit tests'''
         if  self.SupressTests:
             print("Warning: unit tests for {} are suppressed.".format(self.Name))
+            return True;
+
+        if self.DisplayMode:
+            print("Project: '{}' runnint tests: '{}'.".format(self.Name, self.TestCommands));
             return True;
 
         results = 0
@@ -289,6 +301,10 @@ class ModuleBuilder:
 
     def ExecuteCommand(self, command, workingDir, printProgress):
         '''Execute command as process, pipe output to stdout (if not silent)'''
+        if self.DisplayMode:
+            print("Executing command: '{}', working directory: '{}'.".format(command, workingDir))
+            return True;
+
         process = subprocess.Popen(command, shell=True, cwd = workingDir, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         while True:
             result = process.stdout.readline()
@@ -379,7 +395,7 @@ def main():
     for name in moduleNames:
         if args.filter == None or name.find(args.filter) != -1:
             jsonBlock = modules[name]
-            generator = ModuleBuilder(name, args.root, jsonBlock, defaultBlock, args.silent)
+            generator = ModuleBuilder(name, args.root, jsonBlock, defaultBlock, args.silent, args.display)
             generators.append(generator)
 
     print('Yaget Build Dependency Tool (c)2020.')
