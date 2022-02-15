@@ -39,7 +39,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- assimp -------------------------------------------
-# Dependencies> git clone https://github.com/assimp/assimp.git assimp-5.0.1
+# Dependencies> git clone --recursive https://github.com/assimp/assimp.git assimp-5.0.1
 # Dependencies> rmdir /S /Q assimp-5.0.1\.git   ; check first for existance if this filter (hidden)
 # Dependencies> mkdir assimp-5.0.1\builds       ; delete old builds folder if exist
 # Dependencies> cd assimp5.0.1\builds
@@ -53,7 +53,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- flatbuffers -------------------------------------------
-# Dependencies> git clone https://github.com/google/flatbuffers.git flatbuffers-1.11.0
+# Dependencies> git clone --recursive https://github.com/google/flatbuffers.git flatbuffers-1.11.0
 # Dependencies> rmdir /S /Q flatbuffers-1.11.0\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir flatbuffers-1.11.0\builds      ; delete old builds folder if exist
 # Dependencies> cd flatbuffers-1.11.0\builds
@@ -67,7 +67,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- DirectXTex -------------------------------------------
-# Dependencies> git clone https://github.com/microsoft/DirectXTex.git DirectXTex-170
+# Dependencies> git clone --recursive https://github.com/microsoft/DirectXTex.git DirectXTex-170
 # Dependencies> rmdir /S /Q DirectXTex-170\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir DirectXTex-170\builds      ; delete old builds folder if exist
 # Dependencies> cd DirectXTex-170\builds
@@ -79,7 +79,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- DirectXTK11 -------------------------------------------
-# Dependencies> git clone https://github.com/microsoft/DirectXTK.git DirectXTK11-5.10.2020
+# Dependencies> git clone --recursive https://github.com/microsoft/DirectXTK.git DirectXTK11-5.10.2020
 # Dependencies> rmdir /S /Q DirectXTK11-5.10.2020\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir DirectXTK11-5.10.2020\builds      ; delete old builds folder if exist
 # Dependencies> cd DirectXTK11-5.10.2020\builds
@@ -91,7 +91,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- DirectXTK12 -------------------------------------------
-# Dependencies> git clone https://github.com/microsoft/DirectXTK12.git DirectXTK12-4.3.2020
+# Dependencies> git clone --recursive https://github.com/microsoft/DirectXTK12.git DirectXTK12-4.3.2020
 # Dependencies> rmdir /S /Q DirectXTK12-4.3.2020\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir DirectXTK12-4.3.2020\builds      ; delete old builds folder if exist
 # Dependencies> cd DirectXTK12-4.3.2020\builds
@@ -102,7 +102,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- fmt -------------------------------------------
-# Dependencies> git clone https://github.com/fmtlib/fmt.git fmt-6.2.0
+# Dependencies> git clone --recursive https://github.com/fmtlib/fmt.git fmt-6.2.0
 # Dependencies> rmdir /S /Q fmt-6.2.0\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir fmt-6.2.0\builds      ; delete old builds folder if exist
 # Dependencies> cd fmt-6.2.0\builds
@@ -116,7 +116,7 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- nlohmann-json -------------------------------------------
-# Dependencies> git clone https://github.com/nlohmann/json.git nlohmann-json-3.7.3
+# Dependencies> git clone --recursive https://github.com/nlohmann/json.git nlohmann-json-3.7.3
 # Dependencies> rmdir /S /Q nlohmann-json-3.7.3\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir nlohmann-json-3.7.3\builds      ; delete old builds folder if exist
 # Dependencies> cd nlohmann-json-3.7.3\builds
@@ -130,7 +130,7 @@ def ConvertPath(path):
 #------------------------------------ Evaluations  --------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 #---------------------------- reactphysics3d -------------------------------------------
-# Dependencies> git clone https://github.com/DanielChappuis/reactphysics3d.git reactphysics3d-0.7.1
+# Dependencies> git clone --recursive https://github.com/DanielChappuis/reactphysics3d.git reactphysics3d-0.7.1
 # Dependencies> rmdir /S /Q reactphysics3d-0.7.1\.git  ; check first for existance if this filter (hidden)
 # Dependencies> mkdir reactphysics3d-0.7.1\builds      ; delete old builds folder if exist
 # Dependencies> cd reactphysics3d-0.7.1\builds
@@ -143,28 +143,29 @@ def ConvertPath(path):
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- PhysX -------------------------------------------
-# Dependencies> git clone https://github.com/NVIDIAGameWorks/PhysX.git PhysX-4.1
+# Dependencies> git clone --recursive https://github.com/NVIDIAGameWorks/PhysX.git PhysX-4.1
 # Dependencies> rmdir /S /Q PhysX-4.1\.git  ; check first for existance if this filter (hidden)
 # Dependencies> cd PhysX-4.1\physx
 #
 # Dependencies/PhysX-4.1/physx> generate_projects.bat   ; will ask for msdev version selection
 # Dependencies/PhysX-4.1/physx> cd compiler\vc16win64
 # Dependencies/PhysX-4.1/physx/compiler\vc16win64>
-#                                                 'create' include\typeinfo.h
-                                                                #include <typeinfo>
-#                               Change ''Treat Warnings As Errors' to No (/WX-) for Sample Renderer (All Configurations)
+# 	'create' include\typeinfo.h
+# 	include <typeinfo>
+# 	Change ''Treat Warnings As Errors' to No (/WX-) for Sample Renderer (All Configurations)
 # Dependencies/PhysX-4.1/physx/compiler\vc16win64> devenv PhysXSDK.sln /build Debug
 # Dependencies/PhysX-4.1/physx/compiler\vc16win64> devenv PhysXSDK.sln /build Release
 
 
 #----------------------------------------------------------------------------------------------------
 #---------------------------- bullet3 -------------------------------------------
-# Dependencies> git clone https://github.com/bulletphysics/bullet3.git bullet3-2.8.9
+# Dependencies> git clone --recursive https://github.com/bulletphysics/bullet3.git bullet3-2.8.9
 # Dependencies> rmdir /S /Q bullet3-2.8.9\.git  ; check first for existance if this filter (hidden)
 # Dependencies> cd bullet3-2.8.9
 
 
-#cmake --build . --target MyExe --config Debug
+# git clone <--recursive> https_address <optional_folder_name> <--branch branch_name>
+# cmake --build . --target MyExe --config Debug
 
 deployTag = 'MODULE-BUILD'
 
