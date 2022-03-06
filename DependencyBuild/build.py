@@ -210,6 +210,10 @@ class ModuleBuilder:
         if 'cmake' in jsonBlock and 'options' in jsonBlock['cmake']:
             self.BuildOptions.extend(jsonBlock['cmake']['options'])
 
+        cmakeCompileCommands =  ['-GVisual Studio 16 2019', '-Ax64']
+        if 'cmakeCompileCommands' in defaultBlock:
+            cmakeCompileCommands = defaultBlock['cmakeCompileCommands']
+
         self.BuildConfigurations = []
         if 'configurations' in defaultBlock:
             self.BuildConfigurations = copy.deepcopy(defaultBlock['configurations'])
@@ -218,7 +222,8 @@ class ModuleBuilder:
             self.BuildConfigurations.extend(jsonBlock['configurations'])
 
         self.CmakeCommand = 'cmake'
-        self.CmakeOptions = [ '../', '-GVisual Studio 16 2019', '-Ax64', '-Wno-dev' ]
+        self.CmakeOptions = [ '../']
+        self.CmakeOptions.extend(cmakeCompileCommands)
         self.CmakeOptions.extend(self.BuildOptions)
 
         self.BuildCommands = []
@@ -328,6 +333,7 @@ class ModuleBuilder:
 
 # "C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python37_64\python.exe" build.py --root=c:\Development\yaget\Dependencies --metafile=.\Sample.build
 # optional
+#   --display
 #   --silent
 #   --clean
 #   --filter=<reg_expresion>

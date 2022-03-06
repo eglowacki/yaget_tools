@@ -3,7 +3,8 @@
 
     "Defaults": {
         "cmake": { "build_folder": "builds" },
-        "configurations": [ "Release", "Debug" ]
+        "configurations": [ "Release", "Debug" ],
+        "cmakeCompileCommands": [ "-GVisual Studio 17 2022", "-Ax64", "-Wno-dev" ]
     },
 
     "Modules": {
@@ -35,7 +36,7 @@
             "version": "04.06.2021",
             "git": "https://github.com/microsoft"
         },
-		
+
         "DirectX-Headers": {
             "version": "12",
             "git": "https://github.com/microsoft"
@@ -49,7 +50,7 @@
 
         "nlohmann-json": {
             "version": "3.7.3",
-            "git": "https://github.com/nlohmann",
+            "git": "https://github.com/nlohmann/json",
             "tests": [ "ctest --output-on-failure -C Debug", "ctest --output-on-failure -C Release" ],
             "options": { "suppress_tests": true }
         }
