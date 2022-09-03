@@ -1,0 +1,11 @@
+#!wing
+#!version=7.0
+##################################################################
+# Wing project file                                              #
+##################################################################
+[project attributes]
+proj.file-list = [loc('pgs.py')]
+proj.file-type = 'shared'
+proj.launch-config = {loc('pgs.py'): ('project',
+                                      (u'--file=C:\\Development\\yaget\\branch\\zloty\\development\\Tools\\YagetEditor\\source\\Editor.ygs',
+                                       ''))}
