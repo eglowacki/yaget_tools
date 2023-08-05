@@ -8,6 +8,8 @@ import pprint
 import copy
 import subprocess
 
+import os
+
 deployTag = 'BUILD'
 
 # Load actuall meta configuration file (.build)
@@ -262,7 +264,7 @@ class ModuleBuilder:
             if not isFolder:
                 os.makedirs(self.BuildFolderName)
         else:
-            print("Project: '{}', configuring builds folder: '{}', exits: '{}'.".format(self.Name, self.BuildFolderName, isFolder))
+            print("Project: '{}', configuring builds folder: '{}', exist: '{}'.".format(self.Name, self.BuildFolderName, isFolder))
 
         configureCommand = [self.CmakeCommand]
         configureCommand.extend(self.CmakeOptions)
@@ -345,7 +347,7 @@ def main():
     parser = argparse.ArgumentParser(description='''Automation of git, build and deploy of yaget dependency libraries. Yaget (c)2020.
                                                   # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --metafile=$(ProjectDir)$(TargetName).deployment]
                                                   # expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
-    parser.add_argument('-r', '--root', dest='root', required=True, help='Root used for prefix to module/dependency folder')
+    parser.add_argument('-r', '--root', dest='root', default='.\\', help='Root used for prefix to module/dependency folder. default: current directory')
     parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations for how to compile each module/dependency')
     parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
     parser.add_argument('-t', '--test_skip', action='store_true', help='Skip all tests')
@@ -358,6 +360,8 @@ def main():
     if not path.isfile(args.meta):
         print("[{}] ERR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
         exit(1)
+
+    args.root = os.path.abspath(args.root)
 
     if not path.isdir(args.root):
         print("[{}] ERR: root: '{}' is not a valid directory.".format(deployTag, ConvertPath(args.root)))
