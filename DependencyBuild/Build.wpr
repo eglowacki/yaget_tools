@@ -9,5 +9,5 @@ proj.file-list = [loc('build.py'),
                   loc('Sample.build')]
 proj.file-type = 'shared'
 proj.launch-config = {loc('build.py'): ('project',
-        ('--root=c:\\Development\\yaget\\Dependencies --metafile=.\\Sample.build  --display',
+        ('--root="" --metafile=.\\Sample.build  --display',
          ''))}
