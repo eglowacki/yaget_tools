@@ -1,9 +1,0 @@
-Modules\DirectXTex\DDSView\Bin\Desktop_2017\x64\Release\DDSView.exe
-Modules\DirectXTex\Texassemble\Bin\Desktop_2017\x64\Release\texassemble.exe
-Modules\DirectXTex\Texconv\Bin\Desktop_2017\x64\Release\texconv.exe
-Modules\DirectXTex\make_font.bat
-Modules\DirectXTex\Texdiag\Bin\Desktop_2017\x64\Release\texdiag.exe
-Modules\assimp-4.1.0\builds\tools\assimp_cmd\Release\assimp.exe
-Modules\assimp-4.1.0\builds\tools\assimp_cmd\Release\assimp-vc140-mt.dll
-Modules\assimp-4.1.0\builds\tools\assimp_view\Release\assimp_viewer.exe
-Modules\assimp-4.1.0\builds\tools\assimp_view\Release\assimp-vc140-mt.dll
