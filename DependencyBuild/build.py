@@ -8,7 +8,7 @@ import pprint
 import copy
 import subprocess
 
-import os
+from os.path import abspath
 
 deployTag = 'BUILD'
 
@@ -347,8 +347,8 @@ def main():
     parser = argparse.ArgumentParser(description='''Automation of git, build and deploy of yaget dependency libraries. Yaget (c)2020.
                                                   # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --metafile=$(ProjectDir)$(TargetName).deployment]
                                                   # expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
-    parser.add_argument('-r', '--root', dest='root', default='.\\', help='Root used for prefix to module/dependency folder. default: current directory')
-    parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations for how to compile each module/dependency')
+    parser.add_argument('-r', '--root', dest='root', default='.\\', help='Root used for prefix to module/dependency folder.')
+    parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name (implicitly adds extension .build) which contains list of configurations for how to compile each module/dependency')
     parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
     parser.add_argument('-t', '--test_skip', action='store_true', help='Skip all tests')
     parser.add_argument('-f', '--filter', dest='filter', help='Reg expresion for which dependencies to run build(s)')
@@ -358,11 +358,14 @@ def main():
     args = parser.parse_args()
 
     if not path.isfile(args.meta):
-        print("[{}] ERR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
-        exit(1)
+        if path.isfile(args.meta + '.build'):
+            args.meta += '.build'
+        else:
+            print("[{}] ERR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
+            exit(1)
 
-    args.root = os.path.abspath(args.root)
-
+    args.root = abspath(args.root)
+        
     if not path.isdir(args.root):
         print("[{}] ERR: root: '{}' is not a valid directory.".format(deployTag, ConvertPath(args.root)))
         exit(1)
@@ -409,9 +412,9 @@ def main():
             generator = ModuleBuilder(name, args.root, jsonBlock, defaultBlock, args.silent, args.display)
             generators.append(generator)
 
-    print('Yaget Build Dependency Tool (c)2020.')
+    print('[Y] Yaget Build Dependency Tool (c)2020, (c)2023.')
     displayMode = ' In Display Mode' if args.display else ''
-    print('Running configurations{}...'.format(displayMode))
+    print('[Y] Running configurations{}...'.format(displayMode))
 
     genreratedProjects = 0
     compiledProjects = 0
@@ -419,32 +422,36 @@ def main():
 
     configurePass = []
     for generator in generators:
+        print("[Y]     Configuring module: '{}', version: {}...".format(generator.Name, generator.Version))
         if generator.Configure(args.clean):
             configurePass.append(generator)
             genreratedProjects += 1
-            print('    Added: {}, version: {}.'.format(generator.Name, generator.Version))
+            print("[Y]     Configured module: '{}', version: {} added.".format(generator.Name, generator.Version))
+        else:
+            print("[Y]     Module: '{}', version: {} failed to configure.".format(generator.Name, generator.Version))
+            
 
-    print('\nRunning builds...')
+    print('\n[Y] Running builds...')
     for generator in configurePass:
         result = generator.Build()
         if not result:
             dependenciesResult = False
         compiledProjects += result
-        print("    Build '{}' secessfull: {}.".format(generator.Name, result))
+        print("[Y]     Build '{}' secessfull: {}.".format(generator.Name, result))
 
     if args.test_skip:
-        print('\nTests skipped.')
+        print('\n[Y] Tests skipped.')
     else:
-        print('\nRunning tests...')
+        print('\n[Y] Running tests...')
         for generator in configurePass:
             result = generator.Tests()
             if not result:
                 dependenciesResult = False
             testProjects += result
-            print("    Tests '{}' secessfull: {}.".format(generator.Name, result))
+            print("[Y]     Tests '{}' secessfull: {}.".format(generator.Name, result))
 
-    print("\nConfigured: {}, Builded: {}, Tested: {}. Full Clean Run: {}.".format(genreratedProjects, compiledProjects, testProjects, genreratedProjects == compiledProjects == testProjects))
-    print('Finished dependencies configuration and builds. Result: {}.'.format(dependenciesResult))
+    print("\n[Y] Configured: {}, Builded: {}, Tested: {}. Full Clean Run: {}.".format(genreratedProjects, compiledProjects, testProjects, genreratedProjects == compiledProjects == testProjects))
+    print('[Y] Finished dependencies configuration and builds. Result: {}.'.format(dependenciesResult))
 
 
 if __name__ == "__main__":

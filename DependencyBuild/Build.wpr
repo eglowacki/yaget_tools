@@ -4,6 +4,8 @@
 # Wing project file                                              #
 ##################################################################
 [project attributes]
+debug.launch-configs = (2,
+                        {})
 proj.file-list = [loc('build.py'),
                   loc('build_yaget_dependencies.bat'),
                   loc('Sample.build')]

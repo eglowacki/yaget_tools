@@ -1,1 +1,1 @@
-This script is used to copy dependendcies into yaget project bin folder. Files like .dll's, scripting support and so forth.
+This script is used to copy file/files into specific folder. Those can be arbitrary files names like data, script, assets that need to reside in some common folder.

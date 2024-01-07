@@ -84,21 +84,24 @@ def main():
     global deployTag
 
     parser = argparse.ArgumentParser(description='''Update deployment files from it's source folder to destination folder for a build configuration. Yaget (c)2019.
-                                                    Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --destination=$(YAGET_RUN_FOLDER) --metafile=$(ProjectDir)$(TargetName).deployment]
+                                                    Sample input --destination=bin --metafile=bins
+                                                    or [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --destination=$(YAGET_RUN_FOLDER) --metafile=$(ProjectDir)$(TargetName).deployment]
                                                     expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
-    parser.add_argument('-r', '--root', dest='root', required=True, help='Root used in prefix of files to copy')
-    parser.add_argument('-c', '--configuration', dest='configuration', required=True, help='Build configuration to use as a source of dependencies')
+    parser.add_argument('-r', '--root', dest='root', default='.\\', help='Root used in prefix of files to copy')
+    parser.add_argument('-c', '--configuration', dest='configuration', default='Release', help='Build configuration to use as a source of dependencies')
     parser.add_argument('-d', '--destination', dest='destination', required=True, help='Where to copy the dependent files')
-    parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations and files to copy from root/file_to_copy to destination/file_to_copy')
+    parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name which contains list of configurations and files to copy from root/file_to_copy to destination/file_to_copy. .deployment extension is appended if passed file name does not exist.')
     parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
     parser.add_argument('-t', '--test', action='store_true', help='Run through all steps but not actully update files, useful for diagnostics, checks')
 
     args= parser.parse_args()
 
     if not path.isfile(args.meta):
-        #print("[{}] ERROR: Metafile: '{}' is not a valid file.".format(deployTag, ConvertPath(args.meta)))
-        print("[{}] INFO: Meta file '{}' does not exist, no dependency deploymnet will be performed.".format(deployTag, ConvertPath(args.meta)))
-        exit(0)
+        if path.isfile(args.meta + '.deployment'):
+            args.meta += '.deployment'  
+        else:
+            print("[{}] INFO: Meta file '{}' does not exist, no dependency deploymnet will be performed.".format(deployTag, ConvertPath(args.meta)))
+            exit(0)
 
     if args.test:
         deployTag = 'DEPLOY-TEST'

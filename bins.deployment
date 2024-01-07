@@ -1,0 +1,7 @@
+{
+     "Configuration": {
+        "Common": [
+            "DependencyBuild/build.py"
+        ]
+    }
+}

@@ -7,6 +7,4 @@ SQLiteStudio/
 
 *.dll
 
-bin/new_path.txt
-
-bin/old_path.txt
+bin/

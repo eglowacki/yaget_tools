@@ -1,5 +1,5 @@
 #!wing
-#!version=7.0
+#!version=8.0
 ##################################################################
 # Wing project file                                              #
 ##################################################################
@@ -8,5 +8,5 @@ proj.file-list = [loc('deploy.py'),
                   loc('Sample.deployment')]
 proj.file-type = 'shared'
 proj.launch-config = {loc('deploy.py'): ('project',
-        (u'--help',
+        ('--destination=bin --metafile=bins',
          ''))}
