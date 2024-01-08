@@ -294,7 +294,7 @@ class ModuleBuilder:
             return True;
 
         if self.DisplayMode:
-            print("Project: '{}' runnint tests: '{}'.".format(self.Name, self.TestCommands));
+            print("Project: '{}' running tests: '{}'.".format(self.Name, self.TestCommands));
             return True;
 
         results = 0
@@ -365,7 +365,7 @@ def main():
             exit(1)
 
     args.root = abspath(args.root)
-        
+
     if not path.isdir(args.root):
         print("[{}] ERR: root: '{}' is not a valid directory.".format(deployTag, ConvertPath(args.root)))
         exit(1)
@@ -429,7 +429,7 @@ def main():
             print("[Y]     Configured module: '{}', version: {} added.".format(generator.Name, generator.Version))
         else:
             print("[Y]     Module: '{}', version: {} failed to configure.".format(generator.Name, generator.Version))
-            
+
 
     print('\n[Y] Running builds...')
     for generator in configurePass:
@@ -448,7 +448,7 @@ def main():
             if not result:
                 dependenciesResult = False
             testProjects += result
-            print("[Y]     Tests '{}' secessfull: {}.".format(generator.Name, result))
+            print("[Y]     Tests '{}' using {} secessfull: {}.".format(generator.Name, generator.TestCommands, result))
 
     print("\n[Y] Configured: {}, Builded: {}, Tested: {}. Full Clean Run: {}.".format(genreratedProjects, compiledProjects, testProjects, genreratedProjects == compiledProjects == testProjects))
     print('[Y] Finished dependencies configuration and builds. Result: {}.'.format(dependenciesResult))
