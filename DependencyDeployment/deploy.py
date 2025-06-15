@@ -19,10 +19,10 @@ def UpdateDeploymentFiles(files, root, destination, silentPrint, test):
             isSame = filecmp.cmp(sourceFile, targetFile, shallow=True)
             if isSame:
                 if not silentPrint:
-                    print("[{}] OK  current: '{}' upto date.".format(deployTag, ConvertPath(targetFile)))
+                    print("[{}] OK  current: '{}' is upto date.".format(deployTag, ConvertPath(targetFile)))
             else:
                 if not silentPrint:
-                    print("[{}] OK  updated: '{}' needs update.".format(deployTag, ConvertPath(targetFile)))
+                    print("[{}] OK  updated: '{}' needed update.".format(deployTag, ConvertPath(targetFile)))
                 if not test:
                     shutil.copy(sourceFile, targetFile, follow_symlinks=True)
 
@@ -85,8 +85,8 @@ def main():
 
     parser = argparse.ArgumentParser(description='''Update deployment files from it's source folder to destination folder for a build configuration. Yaget (c)2019.
                                                     Sample input --destination=bin --metafile=bins
-                                                    or [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --destination=$(YAGET_RUN_FOLDER) --metafile=$(ProjectDir)$(TargetName).deployment]
-                                                    expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
+                                                    or [$(YAGET_ROOT_FOLDER)/DevTools/DependencyDeployment/deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --destination=$(YAGET_RUN_FOLDER) --metafile=$(ProjectDir)$(TargetName).deployment]
+                                                    ''')
     parser.add_argument('-r', '--root', dest='root', default='.\\', help='Root used in prefix of files to copy')
     parser.add_argument('-c', '--configuration', dest='configuration', default='Release', help='Build configuration to use as a source of dependencies')
     parser.add_argument('-d', '--destination', dest='destination', required=True, help='Where to copy the dependent files')
@@ -98,7 +98,7 @@ def main():
 
     if not path.isfile(args.meta):
         if path.isfile(args.meta + '.deployment'):
-            args.meta += '.deployment'  
+            args.meta += '.deployment'
         else:
             print("[{}] INFO: Meta file '{}' does not exist, no dependency deploymnet will be performed.".format(deployTag, ConvertPath(args.meta)))
             exit(0)

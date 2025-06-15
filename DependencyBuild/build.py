@@ -187,7 +187,12 @@ class ModuleBuilder:
         self.Name = name
         self.DependencyFolder =  dependencyFolder
         self.Version = '{}'.format(jsonBlock['version'])
-        self.RootFolderName = '{}-{}'.format(name, self.Version)
+
+        if len(self.Version) > 0:
+            self.RootFolderName = '{}-{}'.format(name, self.Version)
+        else:
+            self.RootFolderName = '{}'.format(name)
+
         self.PrintProgress = silent == False
         self.SupressTests = False
         self.DisplayMode =  displayMode
@@ -333,7 +338,7 @@ class ModuleBuilder:
                 return True
 
 
-# "C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python37_64\python.exe" build.py --root=c:\Development\yaget\Dependencies --metafile=.\Sample.build
+# build.py --root=c:\Development\yaget\Dependencies --metafile=.\Sample.build
 # optional
 #   --display
 #   --silent
@@ -345,9 +350,9 @@ def main():
     global deployTag
 
     parser = argparse.ArgumentParser(description='''Automation of git, build and deploy of yaget dependency libraries. Yaget (c)2020.
-                                                  # Sample input [$(YAGET_ROOT_FOLDER)\DevTools\DependencyDeployment\deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --metafile=$(ProjectDir)$(TargetName).deployment]
-                                                  # expended to [c:\Development\yaget\DevTools\DependencyDeployment\deploy.py --root=c:\Development\yaget --configuration=Debug --destination=c:\Development\yaget\branch\version_0_2\bin\Coordinator\x64.Debug\ --metafile=C:\Development\yaget\branch\version_0_2\Research\Coordinator\build\Coordinator.deployment]''')
-    parser.add_argument('-r', '--root', dest='root', default='.\\', help='Root used for prefix to module/dependency folder.')
+                                                  # Sample input [$(YAGET_ROOT_FOLDER)/DevTools/DependencyDeployment/deploy.py --root=$(YAGET_ROOT_FOLDER) --configuration=$(Configuration) --metafile=$(ProjectDir)$(TargetName).deployment]
+                                                  # expended to [c:/Development/yaget/DevTools/DependencyDeployment/deploy.py --root=c:/Development/yaget --configuration=Debug --destination=c:/Development/yaget/branch/version_0_2/bin/Coordinator/x64.Debug/ --metafile=C:/Development/yaget/branch/version_0_2/Research/Coordinator/build/Coordinator.deployment]''')
+    parser.add_argument('-r', '--root', dest='root', default='./', help='Root used for prefix to module/dependency folder.')
     parser.add_argument('-m', '--metafile', dest='meta', required=True, help='Json file name (implicitly adds extension .build) which contains list of configurations for how to compile each module/dependency')
     parser.add_argument('-s', '--silent', action='store_true', help='Supress print statements (does not apply to --help or error messages')
     parser.add_argument('-t', '--test_skip', action='store_true', help='Skip all tests')
@@ -412,7 +417,7 @@ def main():
             generator = ModuleBuilder(name, args.root, jsonBlock, defaultBlock, args.silent, args.display)
             generators.append(generator)
 
-    print('[Y] Yaget Build Dependency Tool (c)2020, (c)2023.')
+    print('[Y] Yaget Build Dependency Tool (c)2020, (c)2023, (c)2025.')
     displayMode = ' In Display Mode' if args.display else ''
     print('[Y] Running configurations{}...'.format(displayMode))
 
@@ -448,7 +453,10 @@ def main():
             if not result:
                 dependenciesResult = False
             testProjects += result
-            print("[Y]     Tests '{}' using {} secessfull: {}.".format(generator.Name, generator.TestCommands, result))
+            if len(generator.TestCommands) > 0:
+                print("[Y]     Tests for '{}' using {} secessfull: {}.".format(generator.Name, generator.TestCommands, result))
+            else:
+                print("[Y]     No tests specified for '{}', passed: {}.".format(generator.Name, result))
 
     print("\n[Y] Configured: {}, Builded: {}, Tested: {}. Full Clean Run: {}.".format(genreratedProjects, compiledProjects, testProjects, genreratedProjects == compiledProjects == testProjects))
     print('[Y] Finished dependencies configuration and builds. Result: {}.'.format(dependenciesResult))
