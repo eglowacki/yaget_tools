@@ -8,12 +8,19 @@ import json
 deployTag = 'DEPLOY'
 # Actualy copy/move files from root/files to destination/files
 # unsing time stamp for already existing files at destination
-def UpdateDeploymentFiles(files, root, destination, silentPrint, test):
+def UpdateDeploymentFiles(files, roots, destination, silentPrint, test):
 
     for file in files:
-        sourceFile = path.join(root, file)
+        sourceExist = False
+        sourceFile = ""
+
+        for root in roots:
+            sourceFile = path.join(root, file)
+            sourceExist = path.isfile(sourceFile)
+            if sourceExist:
+                break
+
         targetFile = path.join(destination, path.basename(sourceFile))
-        sourceExist = path.isfile(sourceFile)
         targetExist = path.isfile(targetFile)
         if sourceExist and targetExist:
             isSame = filecmp.cmp(sourceFile, targetFile, shallow=True)
@@ -96,6 +103,9 @@ def main():
 
     args= parser.parse_args()
 
+    roots = args.root.split(';')
+    print("[{}] INFO: Search roots: {}".format(deployTag, roots))
+
     if not path.isfile(args.meta):
         if path.isfile(args.meta + '.deployment'):
             args.meta += '.deployment'
@@ -117,10 +127,14 @@ def main():
 
     if 'Include' in datastore:
         includeFile = datastore['Include']
-        includeSourceFile = path.join(args.root, includeFile)
-        baseDatastore = LoadMetaFile(includeSourceFile)
 
-        datastore = CombineMetaConfiguration(baseDatastore, datastore)
+        for root in roots:
+            sourcePath = path.join(root, includeFile)
+            if path.exists(sourcePath):
+                baseDatastore = LoadMetaFile(sourcePath)
+
+                datastore = CombineMetaConfiguration(baseDatastore, datastore)
+                break
 
     if not 'Configuration' in datastore:
         print("[{}] ERROR: Metafile: '{}' does not have 'Configuration' block.".format(deployTag, ConvertPath(args.meta)))
@@ -148,7 +162,7 @@ def main():
             filesToDeploy.remove(rm[1:])
 
     # finaly update deploy files
-    UpdateDeploymentFiles(filesToDeploy, args.root, args.destination, silentPrint, args.test)
+    UpdateDeploymentFiles(filesToDeploy, roots, args.destination, silentPrint, args.test)
 
     if not silentPrint:
         print("[{}] Yaget deployment finished.".format(deployTag))
